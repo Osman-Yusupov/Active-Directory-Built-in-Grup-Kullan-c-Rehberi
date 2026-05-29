@@ -70,4 +70,4 @@ Uygulama içerisinde aşağıdaki yüksek riskli gruplar için özel bir uyarı 
 
 1. **Depoyu klonlayın** veya ZIP olarak indirin.
    ```bash
-   git clone https://github.com/Osman-Yusupov/active-directory-group-guide.git
+   git clone https://github.com/Osman-Yusupov/Active-Directory-Built-in-Grup-Kullan-c-Rehberi
