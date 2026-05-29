@@ -1,0 +1,1204 @@
+<!DOCTYPE html>
+<html lang="tr" data-theme="light">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Active Directory Users ve Builtin Description</title>
+    <meta name="description" content="Active Directory Builtin ve Users klasöründeki kullanıcı ve grupların açıklamaları">
+    <style>
+        /* ===== CSS VARIABLES & THEME SYSTEM ===== */
+        
+         :root {
+            /* Light Theme (Default) */
+            --color-background-primary: #ffffff;
+            --color-background-secondary: #f8f9fa;
+            --color-background-tertiary: #e9ecef;
+            --color-background-info: #d1ecf1;
+            --color-background-success: #d4edda;
+            --color-background-warning: #fff3cd;
+            --color-background-danger: #f8d7da;
+            --color-text-primary: #212529;
+            --color-text-secondary: #495057;
+            --color-text-tertiary: #6c757d;
+            --color-text-info: #0c5460;
+            --color-text-success: #155724;
+            --color-text-warning: #856404;
+            --color-text-danger: #721c24;
+            --color-border-primary: #dee2e6;
+            --color-border-secondary: #ced4da;
+            --color-border-tertiary: #e9ecef;
+            --color-border-info: #bee5eb;
+            --color-accent-primary: #0d6efd;
+            --color-accent-hover: #0a58ca;
+            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --border-radius-sm: 4px;
+            --border-radius-md: 6px;
+            --border-radius-lg: 10px;
+            --border-radius-xl: 16px;
+            --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            --transition: all 0.2s ease-in-out;
+            --space-xs: 0.25rem;
+            --space-sm: 0.5rem;
+            --space-md: 1rem;
+            --space-lg: 1.5rem;
+            --space-xl: 2rem;
+            --space-xxl: 3rem;
+        }
+        
+        [data-theme="dark"] {
+            --color-background-primary: #1a1a1a;
+            --color-background-secondary: #252525;
+            --color-background-tertiary: #333333;
+            --color-background-info: #1a3a4a;
+            --color-background-success: #1e3a2a;
+            --color-background-warning: #4a3a1a;
+            --color-background-danger: #4a1a1a;
+            --color-text-primary: #f8f9fa;
+            --color-text-secondary: #e9ecef;
+            --color-text-tertiary: #adb5bd;
+            --color-text-info: #9fd3e0;
+            --color-text-success: #a3d9b1;
+            --color-text-warning: #e6c98e;
+            --color-text-danger: #f1aeb5;
+            --color-border-primary: #444444;
+            --color-border-secondary: #555555;
+            --color-border-tertiary: #3a3a3a;
+            --color-border-info: #3a5a6a;
+            --color-accent-primary: #3d8bfd;
+            --color-accent-hover: #61a0ff;
+            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
+        }
+        /* ===== BASE STYLES ===== */
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        body {
+            font-family: var(--font-sans);
+            background: var(--color-background-primary);
+            color: var(--color-text-primary);
+            line-height: 1.6;
+            transition: var(--transition);
+            padding-bottom: var(--space-xxl);
+        }
+        /* ===== HEADER & THEME TOGGLE ===== */
+        
+        header {
+            background: var(--color-background-secondary);
+            border-bottom: 1px solid var(--color-border-secondary);
+            padding: var(--space-md) var(--space-lg);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .header-title {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: var(--color-text-primary);
+        }
+        
+        .theme-toggle {
+            background: var(--color-background-tertiary);
+            border: 1px solid var(--color-border-secondary);
+            width: 48px;
+            height: 28px;
+            border-radius: 14px;
+            position: relative;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            padding: 2px;
+            transition: var(--transition);
+            flex-shrink: 0;
+        }
+        
+        .theme-toggle::after {
+            content: '';
+            position: absolute;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: var(--color-accent-primary);
+            left: 3px;
+            transition: var(--transition);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        [data-theme="dark"] .theme-toggle::after {
+            transform: translateX(20px);
+            background: #ffc107;
+        }
+        
+        .theme-toggle:focus {
+            outline: 2px solid var(--color-accent-primary);
+            outline-offset: 2px;
+        }
+        /* ===== CONTAINER & LAYOUT ===== */
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: var(--space-lg);
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: var(--space-md);
+            }
+            header {
+                padding: var(--space-sm) var(--space-md);
+                flex-wrap: wrap;
+                gap: var(--space-sm);
+            }
+            .header-title {
+                font-size: 1.2rem;
+                width: 100%;
+                text-align: center;
+                margin-bottom: var(--space-xs);
+            }
+        }
+        /* ===== SEARCH & FILTERS ===== */
+        
+        .search-bar {
+            display: flex;
+            gap: var(--space-sm);
+            margin-bottom: var(--space-md);
+            align-items: center;
+            background: var(--color-background-secondary);
+            padding: var(--space-sm) var(--space-md);
+            border-radius: var(--border-radius-lg);
+            border: 1px solid var(--color-border-secondary);
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .search-bar i {
+            font-size: 16px;
+            color: var(--color-text-tertiary);
+            flex-shrink: 0;
+        }
+        
+        .search-bar input {
+            flex: 1;
+            padding: 10px 14px;
+            border: none;
+            border-radius: var(--border-radius-md);
+            background: var(--color-background-primary);
+            color: var(--color-text-primary);
+            font-size: 14px;
+            transition: var(--transition);
+        }
+        
+        .search-bar input:focus {
+            outline: 2px solid var(--color-accent-primary);
+            background: var(--color-background-primary);
+        }
+        
+        .search-bar input::placeholder {
+            color: var(--color-text-tertiary);
+        }
+        
+        .filter-btns {
+            display: flex;
+            gap: var(--space-xs);
+            flex-wrap: wrap;
+            margin-bottom: var(--space-md);
+            padding: var(--space-xs);
+            background: var(--color-background-secondary);
+            border-radius: var(--border-radius-lg);
+            border: 1px solid var(--color-border-secondary);
+        }
+        
+        .filter-btn {
+            padding: 6px 14px;
+            border: 1px solid var(--color-border-secondary);
+            border-radius: var(--border-radius-md);
+            background: var(--color-background-primary);
+            color: var(--color-text-secondary);
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .filter-btn:hover {
+            background: var(--color-background-tertiary);
+            transform: translateY(-1px);
+        }
+        
+        .filter-btn.active {
+            background: var(--color-accent-primary);
+            color: white;
+            border-color: var(--color-accent-primary);
+            box-shadow: 0 2px 4px rgba(13, 110, 253, 0.3);
+        }
+        
+        .filter-btn.active:hover {
+            background: var(--color-accent-hover);
+        }
+        
+        @media (max-width: 480px) {
+            .filter-btns {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .filter-btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+        
+        .count {
+            font-size: 13px;
+            color: var(--color-text-tertiary);
+            margin: var(--space-sm) 0 var(--space-md);
+            font-weight: 500;
+            padding-left: var(--space-xs);
+        }
+        /* ===== TABLE STYLES ===== */
+        
+        .table-container {
+            background: var(--color-background-secondary);
+            border-radius: var(--border-radius-lg);
+            border: 1px solid var(--color-border-secondary);
+            box-shadow: var(--shadow-md);
+            overflow: hidden;
+        }
+        
+        .table-wrapper {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+            font-size: 14px;
+            min-width: 600px;
+        }
+        
+        thead th {
+            background: var(--color-background-tertiary);
+            color: var(--color-text-secondary);
+            font-weight: 600;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 2px solid var(--color-border-secondary);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            white-space: nowrap;
+        }
+        
+        th:nth-child(1) {
+            width: 25%;
+            min-width: 180px;
+        }
+        
+        th:nth-child(2) {
+            width: 15%;
+            min-width: 120px;
+        }
+        
+        th:nth-child(3) {
+            width: 60%;
+            min-width: 300px;
+        }
+        
+        tbody tr {
+            border-bottom: 1px solid var(--color-border-tertiary);
+            transition: var(--transition);
+        }
+        
+        tbody tr:last-child {
+            border-bottom: none;
+        }
+        
+        tbody tr:hover {
+            background: var(--color-background-tertiary);
+            transform: translateX(4px);
+        }
+        
+        td {
+            padding: 12px 16px;
+            vertical-align: top;
+            color: var(--color-text-primary);
+            line-height: 1.5;
+            word-wrap: break-word;
+            font-size: 14px;
+        }
+        
+        td:first-child {
+            font-weight: 500;
+            font-size: 14px;
+            color: var(--color-text-primary);
+        }
+        
+        td:last-child {
+            color: var(--color-text-secondary);
+            font-size: 13.5px;
+        }
+        /* ===== BADGES ===== */
+        
+        .badge {
+            display: inline-block;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 20px;
+            white-space: nowrap;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .badge-user {
+            background: var(--color-background-success);
+            color: var(--color-text-success);
+            border: 1px solid var(--color-border-info);
+        }
+        
+        .badge-local {
+            background: var(--color-background-info);
+            color: var(--color-text-info);
+            border: 1px solid var(--color-border-info);
+        }
+        
+        .badge-global {
+            background: var(--color-background-warning);
+            color: var(--color-text-warning);
+            border: 1px solid var(--color-border-info);
+        }
+        
+        .badge-universal {
+            background: var(--color-background-danger);
+            color: var(--color-text-danger);
+            border: 1px solid var(--color-border-info);
+        }
+        /* ===== FOOTER & SOCIAL MEDIA ===== */
+        
+        footer {
+            background: var(--color-background-secondary);
+            border-top: 1px solid var(--color-border-secondary);
+            padding: var(--space-lg) var(--space-lg) var(--space-xl);
+            margin-top: var(--space-xl);
+            text-align: center;
+        }
+        
+        .footer-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .footer-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: var(--space-md);
+            color: var(--color-text-primary);
+        }
+        
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: var(--space-md);
+            margin: var(--space-md) 0;
+            flex-wrap: wrap;
+        }
+        
+        .social-link {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: var(--color-background-primary);
+            border: 1px solid var(--color-border-secondary);
+            color: var(--color-text-primary);
+            text-decoration: none;
+            transition: var(--transition);
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .social-link:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-md);
+            background: var(--color-accent-primary);
+            color: white;
+            border-color: var(--color-accent-primary);
+        }
+        
+        .social-link svg {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
+        }
+        
+        .footer-note {
+            font-size: 13px;
+            color: var(--color-text-tertiary);
+            margin-top: var(--space-md);
+            line-height: 1.5;
+        }
+        
+        .footer-note a {
+            color: var(--color-accent-primary);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .footer-note a:hover {
+            text-decoration: underline;
+        }
+        
+        @media (max-width: 480px) {
+            footer {
+                padding: var(--space-md);
+            }
+            .social-links {
+                gap: var(--space-sm);
+            }
+            .social-link {
+                width: 40px;
+                height: 40px;
+            }
+            .social-link svg {
+                width: 18px;
+                height: 18px;
+            }
+        }
+        /* ===== UTILITIES & ACCESSIBILITY ===== */
+        
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+        
+         :focus-visible {
+            outline: 2px solid var(--color-accent-primary);
+            outline-offset: 2px;
+        }
+        
+        body,
+        .search-bar,
+        .filter-btn,
+        .badge,
+        tbody tr,
+        footer,
+        .social-link {
+            transition: var(--transition);
+        }
+        /* ===== ANIMATIONS ===== */
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        tbody tr {
+            animation: fadeIn 0.3s ease-out forwards;
+        }
+        
+        tbody tr:nth-child(1) {
+            animation-delay: 0.05s;
+        }
+        
+        tbody tr:nth-child(2) {
+            animation-delay: 0.1s;
+        }
+        
+        tbody tr:nth-child(3) {
+            animation-delay: 0.15s;
+        }
+        
+        tbody tr:nth-child(4) {
+            animation-delay: 0.2s;
+        }
+        
+        tbody tr:nth-child(5) {
+            animation-delay: 0.25s;
+        }
+        /* ===== RESPONSIVE BREAKPOINTS (base) ===== */
+        
+        @media (max-width: 359px) {
+            .container {
+                padding: var(--space-sm);
+            }
+            .search-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .search-bar input {
+                width: 100%;
+            }
+            th,
+            td {
+                padding: 8px 12px;
+                font-size: 13px;
+            }
+            th:nth-child(1),
+            th:nth-child(2),
+            th:nth-child(3),
+            td:nth-child(1),
+            td:nth-child(2),
+            td:nth-child(3) {
+                width: auto;
+                min-width: auto;
+            }
+            table {
+                min-width: 400px;
+            }
+        }
+        
+        @media (min-width: 360px) and (max-width: 767px) {
+            .container {
+                padding: var(--space-md);
+            }
+            .search-bar {
+                flex-wrap: wrap;
+            }
+            table {
+                min-width: 500px;
+            }
+            td {
+                font-size: 13px;
+            }
+        }
+        
+        @media (min-width: 768px) and (max-width: 1023px) {
+            .container {
+                padding: var(--space-lg);
+            }
+            table {
+                min-width: 700px;
+            }
+        }
+        
+        @media (min-width: 1024px) and (max-width: 1439px) {
+            .container {
+                padding: var(--space-lg) var(--space-xl);
+            }
+        }
+        
+        @media (min-width: 1440px) {
+            .container {
+                max-width: 1600px;
+                padding: var(--space-xl) var(--space-xxl);
+            }
+            table {
+                font-size: 14.5px;
+            }
+            td {
+                padding: 14px 20px;
+            }
+        }
+        /* ===== PRINT STYLES ===== */
+        
+        @media print {
+            .theme-toggle,
+            .search-bar,
+            .filter-btns,
+            footer {
+                display: none !important;
+            }
+            body {
+                background: white;
+                color: black;
+                font-size: 12pt;
+            }
+            .table-container {
+                box-shadow: none;
+                border: 1px solid #ccc;
+            }
+            thead th {
+                background: #f0f0f0 !important;
+                color: black !important;
+                -webkit-print-color-adjust: exact;
+            }
+            tbody tr:hover {
+                background: transparent !important;
+                transform: none !important;
+            }
+        }
+        /* ===== SECURITY ALERT SECTION ===== */
+        
+        .security-alert {
+            margin: var(--space-xl) 0 var(--space-lg);
+            background: var(--color-background-secondary);
+            border: 1px solid var(--color-border-danger);
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow-md);
+            overflow: hidden;
+        }
+        
+        .alert-header {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            padding: var(--space-md) var(--space-lg);
+            background: var(--color-background-danger);
+            border-bottom: 1px solid var(--color-border-danger);
+            color: var(--color-text-danger);
+        }
+        
+        .alert-header h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin: 0;
+        }
+        
+        .alert-header svg {
+            flex-shrink: 0;
+            stroke: currentColor;
+        }
+        
+        .alert-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 1px;
+            background: var(--color-border-tertiary);
+        }
+        
+        .alert-item {
+            display: flex;
+            gap: var(--space-md);
+            padding: var(--space-md) var(--space-lg);
+            background: var(--color-background-primary);
+            transition: var(--transition);
+        }
+        
+        .alert-item:hover {
+            background: var(--color-background-tertiary);
+        }
+        
+        .alert-item.critical {
+            border-left: 4px solid var(--color-text-danger);
+        }
+        
+        .alert-item.warning {
+            border-left: 4px solid var(--color-text-warning);
+        }
+        
+        .alert-icon {
+            flex-shrink: 0;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: var(--color-background-tertiary);
+            color: var(--color-text-secondary);
+        }
+        
+        .alert-item.critical .alert-icon {
+            background: var(--color-background-danger);
+            color: var(--color-text-danger);
+        }
+        
+        .alert-item.warning .alert-icon {
+            background: var(--color-background-warning);
+            color: var(--color-text-warning);
+        }
+        
+        .alert-icon svg {
+            width: 16px;
+            height: 16px;
+            stroke: currentColor;
+        }
+        
+        .alert-content {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .alert-content strong {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--color-text-primary);
+            margin-bottom: var(--space-xs);
+        }
+        
+        .alert-content p {
+            font-size: 13px;
+            color: var(--color-text-secondary);
+            line-height: 1.5;
+            margin: 0;
+        }
+        
+        .alert-content mark {
+            background: transparent;
+            color: var(--color-text-danger);
+            font-weight: 500;
+            padding: 0;
+        }
+        
+        .alert-item.warning .alert-content mark {
+            color: var(--color-text-warning);
+        }
+        
+        .alert-footer {
+            padding: var(--space-sm) var(--space-lg) var(--space-md);
+            background: var(--color-background-tertiary);
+            border-top: 1px solid var(--color-border-secondary);
+        }
+        
+        .alert-footer small {
+            color: var(--color-text-tertiary);
+            font-size: 12px;
+            line-height: 1.4;
+        }
+        
+        .alert-footer strong {
+            color: var(--color-text-primary);
+        }
+        
+        @media (max-width: 768px) {
+            .alert-header {
+                padding: var(--space-sm) var(--space-md);
+                flex-wrap: wrap;
+                gap: var(--space-xs);
+            }
+            .alert-header h3 {
+                font-size: 0.95rem;
+                width: 100%;
+            }
+            .alert-grid {
+                grid-template-columns: 1fr;
+            }
+            .alert-item {
+                padding: var(--space-md);
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .alert-icon {
+                width: 24px;
+                height: 24px;
+            }
+            .alert-content strong {
+                font-size: 13px;
+            }
+            .alert-content p {
+                font-size: 12.5px;
+            }
+        }
+        
+        @media (max-width: 360px) {
+            .alert-item {
+                padding: var(--space-sm);
+            }
+            .alert-content strong {
+                font-size: 12px;
+            }
+            .alert-content p {
+                font-size: 12px;
+            }
+        }
+        
+        @media print {
+            .security-alert {
+                break-inside: avoid;
+                border: 1px solid #ccc;
+                box-shadow: none;
+            }
+            .alert-header {
+                background: #ffebee !important;
+                color: #c62828 !important;
+                -webkit-print-color-adjust: exact;
+            }
+            .alert-item.critical {
+                border-left-color: #c62828;
+            }
+            .alert-item.warning {
+                border-left-color: #f57f17;
+            }
+            .alert-content mark {
+                color: #c62828 !important;
+                font-weight: 600;
+            }
+        }
+        
+        [data-theme="dark"] .alert-header {
+            background: rgba(120, 30, 40, 0.3);
+            border-color: var(--color-border-danger);
+        }
+        
+        [data-theme="dark"] .alert-item.critical .alert-icon {
+            background: rgba(120, 30, 40, 0.4);
+        }
+        
+        [data-theme="dark"] .alert-item.warning .alert-icon {
+            background: rgba(140, 100, 30, 0.4);
+        }
+        
+        [data-theme="dark"] .alert-footer {
+            background: var(--color-background-secondary);
+        }
+        /* ===== 360px - 800px ARASI TABLO DÜZENLEMESİ (Kelime bölünmesi düzeltildi) ===== */
+        
+        @media screen and (max-width: 800px) {
+            table {
+                table-layout: auto;
+                min-width: 0;
+                /* yatay scroll bar çıkmasını engeller */
+            }
+            th:nth-child(1),
+            td:nth-child(1) {
+                width: auto;
+                min-width: 80px;
+                font-size: 13px;
+                /* isim sütunu biraz küçüldü */
+            }
+            th:nth-child(2),
+            td:nth-child(2) {
+                width: auto;
+                min-width: 70px;
+                font-size: 13px;
+            }
+            th:nth-child(3),
+            td:nth-child(3) {
+                width: auto;
+                min-width: 120px;
+            }
+            th,
+            td {
+                white-space: normal;
+                overflow-wrap: break-word;
+                /* kelime bütünlüğünü korur, taşma olursa böler */
+                word-break: normal;
+                /* harf harf bölmeyi engeller */
+            }
+            .badge {
+                white-space: normal;
+                word-break: normal;
+                overflow-wrap: break-word;
+                font-size: 11px;
+                /* badge boyutunu koruyoruz */
+                display: inline-block;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1 class="header-title">Active Directory Users & Builtin Groups</h1>
+        <button class="theme-toggle" id="themeToggle" aria-label="Tema değiştir (Aydınlık/Karanlık)">
+            <span class="sr-only">Tema Değiştir</span>
+        </button>
+    </header>
+
+    <div class="container">
+        <h2 class="sr-only">Active Directory Builtin ve Users Klasörü — Kullanıcı ve Gruplar Açıklaması</h2>
+
+        <div class="search-bar">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input type="text" id="searchInput" placeholder="İsim veya açıklamada ara..." oninput="filterTable()" aria-label="Arama kutusu" />
+        </div>
+
+        <div class="filter-btns">
+            <button class="filter-btn active" onclick="setFilter('all',this)" aria-pressed="true">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:4px"><path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z"/></svg>
+                Tümü
+            </button>
+            <button class="filter-btn" onclick="setFilter('user',this)">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:4px"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                User
+            </button>
+            <button class="filter-btn" onclick="setFilter('local',this)">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:4px"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                Domain Local
+            </button>
+            <button class="filter-btn" onclick="setFilter('global',this)">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:4px"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                Global
+            </button>
+            <button class="filter-btn" onclick="setFilter('universal',this)">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:4px"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+                Universal
+            </button>
+        </div>
+
+        <div class="count" id="rowCount"></div>
+
+        <div class="table-container">
+            <div class="table-wrapper">
+                <table id="mainTable">
+                    <thead>
+                        <tr>
+                            <th scope="col">İsim</th>
+                            <th scope="col">Tür</th>
+                            <th scope="col">Açıklama</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="security-alert" role="region" aria-label="Güvenlik uyarıları">
+            <div class="alert-header">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                    <line x1="12" y1="9" x2="12" y2="13"></line>
+                    <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                </svg>
+                <h3>⚠️ Yüksek Riskli Hesap ve Gruplar — Dikkat Edilmesi Gerekenler</h3>
+            </div>
+            <div class="alert-grid">
+                <div class="alert-item critical">
+                    <div class="alert-icon">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                    </div>
+                    <div class="alert-content">
+                        <strong>Schema Admins</strong>
+                        <p>Active Directory şemasını değiştirme yetkisine sahip tek gruptur. Şema değişiklikleri geri alınamaz ve tüm ormanı etkiler. <mark>Şema değişikliği dışında daima boş olmalı, üyelik yalnızca gerektiğinde verilmeli ve hemen geri alınmalıdır.</mark></p>
+                    </div>
+                </div>
+                <div class="alert-item critical">
+                    <div class="alert-icon">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                    </div>
+                    <div class="alert-content">
+                        <strong>Enterprise Admins</strong>
+                        <p>Tüm Active Directory ormanı üzerinde tam yönetici yetkisine sahip en üst düzey gruptur. <mark>Kalıcı üye bulundurmaktan kaçınılmalı, üyelik gün bazlı olarak yönetilmeli ve kalıcı üye sayısı sıfırda tutulmalıdır.</mark></p>
+                    </div>
+                </div>
+                <div class="alert-item critical">
+                    <div class="alert-icon">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                    </div>
+                    <div class="alert-content">
+                        <strong>Domain Admins</strong>
+                        <p>Etki alanındaki tüm bilgisayarlar üzerinde tam yönetici yetkisine sahip kritik gruptur. <mark>Üye sayısı minimumda tutulmalı, yalnızca zorunlu durumlarda geçici üyelik verilmelidir.</mark></p>
+                    </div>
+                </div>
+                <div class="alert-item warning">
+                    <div class="alert-icon">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                    </div>
+                    <div class="alert-content">
+                        <strong>Guest</strong>
+                        <p>Etki alanı kaynaklarına minimum düzeyde erişim sağlayan varsayılan misafir hesabıdır. <mark>Güvenlik riski oluşturduğundan devre dışı bırakılması ve kullanılmaması şiddetle önerilir.</mark></p>
+                    </div>
+                </div>
+                <div class="alert-item warning">
+                    <div class="alert-icon">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                    </div>
+                    <div class="alert-content">
+                        <strong>DefaultAccount</strong>
+                        <p>Windows tarafından varsayılan olarak oluşturulan sistem yönetim hesabıdır. <mark>Normal koşullarda kullanılmaz ve güvenlik amacıyla devre dışı bırakılmalıdır.</mark></p>
+                    </div>
+                </div>
+                <div class="alert-item warning">
+                    <div class="alert-icon">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                    </div>
+                    <div class="alert-content">
+                        <strong>Pre-Windows 2000 Compatible Access</strong>
+                        <p>Windows 2000 öncesi işletim sistemleriyle geriye dönük uyumluluk için AD nesnelerine anonim okuma erişimi sağlar. <mark>Modern ortamlarda güvenlik riski oluşturabileceğinden boş bırakılması önerilir.</mark></p>
+                    </div>
+                </div>
+            </div>
+            <div class="alert-footer">
+                <small>💡 <strong>İpucu:</strong> Bu hesap ve grupların yetkilerini düzenli olarak denetleyin. Ayrıcalıklı erişim yönetimi (PAM) prensiplerini uygulayarak "en az ayrıcalık" ilkesini benimseyin.</small>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-title">Beni Takip Edin</div>
+            <div class="social-links">
+                <a href="https://www.linkedin.com/in/osman-yusupov/" target="_blank" rel="noopener noreferrer" class="social-link" aria-label="LinkedIn profilim">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
+                    </svg>
+                </a>
+                <a href="https://github.com/Osman-Yusupov" target="_blank" rel="noopener noreferrer" class="social-link" aria-label="GitHub profilim">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/>
+                    </svg>
+                </a>
+                <a href="https://www.youtube.com/@pcinfoacademi" target="_blank" rel="noopener noreferrer" class="social-link" aria-label="YouTube kanalım">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                    </svg>
+                </a>
+                <a href="#" target="_blank" rel="noopener noreferrer" class="social-link" aria-label="Kişisel web sitem">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
+                    </svg>
+                </a>
+            </div>
+            <p class="footer-note">
+                Kaynak: <a href="https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/manage/understand-security-groups#default-security-groups" target="_blank" rel="noopener noreferrer">Active Directory Default Security Groups</a><br> Bu sayfa
+                tamamen offline çalışacak şekilde tasarlanmıştır. Tüm stiller ve betikler dahildir.
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        const themeToggle = document.getElementById('themeToggle');
+        const htmlElement = document.documentElement;
+        const savedTheme = localStorage.getItem('ad-theme');
+        const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+
+        if (savedTheme === 'dark' || (!savedTheme && prefersDarkScheme.matches)) {
+            htmlElement.setAttribute('data-theme', 'dark');
+        }
+
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = htmlElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            htmlElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('ad-theme', newTheme);
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (htmlElement.getAttribute('data-theme') === 'dark') {
+                themeToggle.setAttribute('aria-pressed', 'true');
+            }
+        });
+
+        const data = [
+            ["Access Control Assistance Operators", "local", "Uzak bir bilgisayardaki kaynak izin nitelikleri ve haklarını sorgulama yetkisi verir. Özellikle WMI (Windows Management Instrumentation) üzerinden erişim denetimi sorgularında kullanılır."],
+            ["Account Operators", "local", "Active Directory'de kullanıcı hesapları, gruplar ve bilgisayar hesapları oluşturma, değiştirme ve silme yetkisi verir. Ancak Domain Admins veya Administrators üyelerini yönetemezler. Helpdesk personeline sınırlı AD yönetimi sağlamak için kullanılır."],
+            ["Administrators", "local", "Etki alanı denetleyicisi ve Active Directory üzerinde tam yönetici yetkisine sahip en güçlü gruptur. Tüm sistem ayarlarını değiştirebilir, hesap yönetimi yapabilir ve güvenlik politikalarını belirleyebilirler."],
+            ["Backup Operators", "local", "Windows Server Backup aracını kullanarak dosya ve klasörleri yedekleme ve geri yükleme yetkisi verir. Dosya izinlerinden bağımsız olarak tüm dosyalara yedekleme amacıyla erişebilirler."],
+            ["Certificate Service DCOM Access", "local", "Sertifika Hizmetleri'ne (Active Directory Certificate Services) DCOM protokolü üzerinden erişim sağlar. Sertifika isteme ve yönetme işlemleri için kullanılır."],
+            ["Cryptographic Operators", "local", "Kriptografik işlemler gerçekleştirme yetkisi verir. Windows şifreleme servislerine ve kriptografik donanım/yazılım bileşenlerine erişim sağlar."],
+            ["Distributed COM Users", "local", "DCOM (Distributed Component Object Model) nesnelerini başlatma, etkinleştirme ve kullanma yetkisi verir. COM+ tabanlı uygulamaların çalıştırılması için gereklidir."],
+            ["Event Log Readers", "local", "Windows Olay Günlükleri'ni (Event Logs) okuma yetkisi verir. Güvenlik, uygulama ve sistem günlüklerini izleme görevleri için kullanılır; ancak günlükleri temizleme yetkisi vermez."],
+            ["Guests", "local", "En sınırlı yetkiye sahip varsayılan grup. Üyeler yalnızca oturum açabilir ve temel işlemleri gerçekleştirebilir. Geçici ve anonim erişim senaryolarında kullanılır."],
+            ["Hyper-V Administrators", "local", "Hyper-V sanallaştırma platformu üzerinde tam yönetici yetkisi sağlar. Sanal makineler oluşturma, yapılandırma, başlatma ve durdurma işlemleri için kullanılır."],
+            ["IIS_IUSRS", "local", "Internet Information Services (IIS) web sunucusunun çalışma zamanında kullandığı dahili hizmet grubudur. IIS uygulama havuzları bu grubun kimliğini kullanarak dosya sistemine erişir."],
+            ["Incoming Forest Trust Builders", "local", "Dış orman güvenilerini (forest trust) kök etki alanında oluşturma yetkisi verir. Birden fazla AD ormanı arasında güven ilişkisi kurulması gerektiğinde kullanılır."],
+            ["Network Configuration Operators", "local", "TCP/IP gibi ağ yapılandırma ayarlarını değiştirme, IP adresi atama ve ağ bağlantılarını yönetme yetkisi verir. Tam yönetici olmadan ağ yapılandırması gereken senaryolar için kullanılır."],
+            ["Performance Log Users", "local", "Windows Performans İzleme araçlarını (Performance Monitor) kullanarak performans sayaçlarını ve olay izlerini uzaktan yapılandırma ve kaydetme yetkisi verir."],
+            ["Performance Monitor Users", "local", "Yerel ve uzak bilgisayarlarda performans sayaçlarını gerçek zamanlı izleme yetkisi verir. Uygulama ve sistem performansını izlemesi gereken operasyon ekipleri için kullanılır."],
+            ["Pre-Windows 2000 Compatible Access", "local", "Windows 2000 öncesi işletim sistemleriyle geriye dönük uyumluluk için AD nesnelerine anonim okuma erişimi sağlar. Modern ortamlarda güvenlik riski oluşturabileceğinden boş bırakılması önerilir."],
+            ["Print Operators", "local", "Yazıcıları kurma, yapılandırma ve kaldırma yetkisi verir. Aynı zamanda etki alanı denetleyicilerinde yerel oturum açma ve kapatma yapabilirler."],
+            ["RDS Endpoint Servers", "local", "Remote Desktop Services (RDS) mimarisinde son kullanıcı oturumlarının çalıştırıldığı sunucuları tanımlar. RD Connection Broker ile oturum yönlendirmesi için gereklidir."],
+            ["RDS Management Servers", "local", "RDS altyapısının yönetimini üstlenen sunucuları tanımlar. RD Connection Broker ve RD Gateway gibi bileşenlerin birbirleriyle iletişiminde kullanılır."],
+            ["RDS Remote Access Servers", "local", "Kullanıcılara Remote Desktop Services'e uzaktan erişim sağlayan sunucuları (ör. RD Gateway) tanımlar. RDS kaynaklarına erişim denetiminde rol oynar."],
+            ["Remote Desktop Users", "local", "Uzak Masaüstü Protokolü (RDP) ile sunucuya uzaktan bağlanma yetkisi verir. Çalışanların uzak çalışma ortamlarına veya terminal sunucularına bağlanmasını sağlamak için kullanılır."],
+            ["Remote Management Users", "local", "Windows Remote Management (WinRM) aracılığıyla WMI ve PowerShell Remoting kullanarak sunucuyu uzaktan yönetme yetkisi verir. Uzak yönetim ve otomasyon görevleri için kullanılır."],
+            ["Replicator", "local", "Etki alanı denetleyicileri arasında dosya replikasyonu için kullanılan eski bir grup. Günümüzde yerini çoğunlukla DFS-R almıştır; ancak eski ortamlarda dosya senkronizasyonu için hâlâ kullanılabilir."],
+            ["Server Operators", "local", "Etki alanı denetleyicilerini yapılandırma, dosya paylaşımı oluşturma, servisleri başlatıp durdurma ve yerel oturum açma yetkisi verir. Administrators grubundan daha az yetkiye sahiptir."],
+            ["Storage Replica Administrators", "local", "Storage Replica özelliğini yönetme yetkisi verir. Sunucular veya kümeler arasında depolama birimlerinin eşzamanlı veya zaman uyumsuz replikasyonunu yapılandırmak için kullanılır."],
+            ["System Managed Accounts Group", "local", "Windows 10/Server 2016 ile birlikte gelen ve işletim sistemi tarafından otomatik yönetilen hesapların üye olduğu gruptur. El ile müdahale gerektirmez; sistem tarafından yönetilir."],
+            ["Terminal Server License Servers", "local", "Terminal Server lisans sunucularını tanımlar. Bu gruptaki sunucular, Terminal Services (RDS) için istemci erişim lisanslarını (CAL) yönetir ve dağıtır."],
+            ["Users", "local", "Tüm etki alanı kullanıcılarını içeren temel güvenlik grubudur. Günlük iş görevlerini yerine getirmek için gereken minimum yetkiyi sağlar; yönetimsel işlem yapamaz."],
+            ["Windows Authorization Access Group", "local", "Kullanıcı nesnesinin tokenGroupsGlobalAndUniversal özniteliğine erişim yetkisi verir. Kerberos tabanlı kimlik doğrulamada yetkilendirme token'larının hesaplanmasında kullanılır."],
+            ["Administrator", "user", "Etki alanının birincil yönetici hesabıdır. Tüm AD nesneleri, ilkeleri ve sistem yapılandırmaları üzerinde sınırsız yetkiye sahiptir. Güvenlik açısından yeniden adlandırılması ve güçlü bir parola ile korunması önerilir."],
+            ["Allowed RODC Password Replication Group", "local", "Read-Only Domain Controller (RODC) üzerinde parola önbelleğine alınmasına izin verilen hesapları tanımlar. Şube ofis senaryolarında belirli kullanıcıların kimlik bilgilerinin RODC'de önbelleğe alınması için kullanılır."],
+            ["Cert Publishers", "local", "Active Directory Sertifika Hizmetleri tarafından verilen sertifikaları AD'ye yayınlama yetkisi olan bilgisayar ve CA sunucularını içerir. Sertifika yayınlama ve güven zinciri oluşturma süreçlerinde kullanılır."],
+            ["Cloneable Domain Controllers", "global", "Sanal ortamlarda klonlanabilecek etki alanı denetleyicilerini tanımlar. Bu gruptaki DC'ler, hızlı DC dağıtımı için VM klonlama ile çoğaltılabilir."],
+            ["DefaultAccount", "user", "Windows tarafından varsayılan olarak oluşturulan sistem yönetim hesabıdır. Belirli işletim sistemi senaryolarında kullanılmak üzere ayrılmıştır; normal koşullarda kullanılmaz ve devre dışı bırakılmalıdır."],
+            ["Denied RODC Password Replication Group", "local", "Read-Only Domain Controller üzerinde parola önbelleğine alınması kesinlikle yasaklanan hesapları tanımlar. Domain Admins, Schema Admins gibi ayrıcalıklı hesaplar bu grupta bulunur."],
+            ["DnsAdmins", "local", "DNS sunucusunu yönetme ve yapılandırma yetkisi verir. DNS kayıt ekleme/silme, zone yönetimi ve DNS servis yapılandırması bu grup aracılığıyla yetkilendirilebilir."],
+            ["DnsUpdateProxy", "global", "DHCP sunucularının DNS kayıtlarını DNS istemcileri adına dinamik olarak güncellemesine izin verir. Eski DHCP istemcilerin kendi DNS kayıtlarını güncelleyemediği ortamlarda kullanılır."],
+            ["Domain Admins", "global", "Etki alanındaki tüm bilgisayarlar üzerinde tam yönetici yetkisine sahip kritik gruptur. Üyeleri otomatik olarak tüm domain üyelerinin yerel Administrators grubuna eklenir. Üyelik sayısı minimumda tutulmalıdır."],
+            ["Domain Computers", "global", "Etki alanına katılmış tüm bilgisayar hesaplarını (sunucu ve iş istasyonu) içerir. Grup ilkesi uygulamalarında ve kaynak erişim denetiminde bilgisayar genelinde yetkilendirme için kullanılır."],
+            ["Domain Controllers", "global", "Etki alanındaki tüm etki alanı denetleyicisi hesaplarını içerir. DC'lere özgü güvenlik politikaları ve erişim denetimleri uygulamak için kullanılır."],
+            ["Domain Guests", "global", "Etki alanındaki misafir hesaplarını içerir. Kısıtlı ve geçici erişim gerektiren senaryolar için kullanılır; üyeler çok sınırlı haklara sahiptir."],
+            ["Domain Users", "global", "Etki alanındaki tüm kullanıcı hesaplarını otomatik olarak içeren gruptur. Yeni oluşturulan her kullanıcı hesabı otomatik olarak bu gruba eklenir. Tüm kullanıcılara ortak kaynak erişimi vermek için kullanılır."],
+            ["Enterprise Admins", "universal", "Tüm Active Directory ormanı üzerinde tam yönetici yetkisine sahip en üst düzey gruptur. Yeni etki alanı ekleme, orman işlevsel düzeyini yükseltme ve schema değişiklikleri için gereklidir. Üyelik gün bazlı olarak yönetilmeli, kalıcı üye sayısı sıfırda tutulmalıdır."],
+            ["Enterprise Key Admins", "universal", "Tüm ormandaki anahtar (credential) nesnelerini yönetme yetkisi verir. Windows Hello for Business ve FIDO2 gibi modern kimlik doğrulama yöntemlerinin etki alanı genelinde yönetimi için kullanılır."],
+            ["Enterprise Read-only Domain Controllers", "universal", "Ormandaki tüm Read-Only Domain Controller'ları temsil eder. RODC'lerin orman genelinde yönetimi ve erişim denetimi için kullanılır."],
+            ["Group Policy Creator Owners", "global", "Grup İlkesi Nesneleri (GPO) oluşturma ve sahibi olduğu GPO'ları düzenleme yetkisi verir. Oluşturulan GPO'nun tam kontrolü yaratıcıya aittir. İlke yönetimi için güvenli yetki devri sağlar."],
+            ["Guest", "user", "Etki alanı kaynaklarına minimum düzeyde erişim sağlayan varsayılan misafir hesabıdır. Güvenlik riski oluşturduğundan devre dışı bırakılması ve kullanılmaması şiddetle önerilir."],
+            ["Key Admins", "global", "Etki alanındaki kullanıcı nesnelerine ait Windows Hello for Business ve FIDO2 kimlik bilgisi (key credential) nesnelerini yönetme yetkisi verir. Yalnızca ilgili etki alanında geçerlidir."],
+            ["Protected Users", "global", "Kimlik hırsızlığına karşı ek güvenlik önlemleri uygulanan kullanıcı hesaplarını içerir. NTLM kimlik doğrulaması, kerberos delege etme ve RC4 şifreleme engellenir. Yöneticiler ve ayrıcalıklı hesapların korunması için kullanılır."],
+            ["RAS and IAS Servers", "local", "Uzaktan erişim ve ağ politikası sunucularını (RRAS, NPS/IAS) içerir. Bu sunucuların etki alanı kullanıcı hesapları üzerindeki Dial-in özelliklerini okumasına izin verir."],
+            ["Read-only Domain Controllers", "global", "Etki alanındaki tüm RODC hesaplarını içerir. RODC'lere yönelik etki alanı düzeyinde politika ve erişim yönetimi için kullanılır."],
+            ["Schema Admins", "universal", "Active Directory şemasını (schema) değiştirme yetkisine sahip tek gruptur. Şema değişiklikleri geri alınamaz ve tüm ormanı etkiler; bu nedenle üyelik yalnızca gerektiğinde verilmeli ve hemen geri alınmalıdır."]
+        ];
+
+        let activeFilter = 'all';
+
+        function getBadge(type) {
+            if (type === 'user') return '<span class="badge badge-user">User</span>';
+            if (type === 'local') return '<span class="badge badge-local">Domain Local</span>';
+            if (type === 'global') return '<span class="badge badge-global">Global</span>';
+            if (type === 'universal') return '<span class="badge badge-universal">Universal</span>';
+            return '';
+        }
+
+        function renderTable() {
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            const tbody = document.getElementById('tableBody');
+            let html = '';
+            let count = 0;
+            data.forEach(([name, type, desc]) => {
+                if (activeFilter !== 'all' && type !== activeFilter) return;
+                if (search && !name.toLowerCase().includes(search) && !desc.toLowerCase().includes(search)) return;
+                count++;
+                html += `<tr><td style="font-weight:500;font-size:14px;">${name}</td><td>${getBadge(type)}</td><td style="color:var(--color-text-secondary)">${desc}</td></tr>`;
+            });
+            tbody.innerHTML = html;
+            document.getElementById('rowCount').textContent = count + ' kayıt gösteriliyor';
+        }
+
+        function filterTable() {
+            renderTable();
+        }
+
+        function setFilter(f, btn) {
+            activeFilter = f;
+            document.querySelectorAll('.filter-btn').forEach(b => {
+                b.classList.remove('active');
+                b.setAttribute('aria-pressed', 'false');
+            });
+            btn.classList.add('active');
+            btn.setAttribute('aria-pressed', 'true');
+            renderTable();
+        }
+
+        document.addEventListener('DOMContentLoaded', renderTable);
+    </script>
+</body>
+
+</html>
